@@ -39,10 +39,8 @@ from pydantic import BaseModel, Field
 
 # --- Agent Executors Import ---
 # 주의: 환경 변수(API Key)가 로드된 후에 에이전트 모듈을 임포트해야 합니다.
-from app.agents.basic import agent_executor as basic_agent
-from app.agents.rag_basic import agent_executor as rag_basic_agent
-from app.agents.rag_self_query import agent_executor as rag_self_query_agent
-from app.agents.rag_multimodal import agent_executor as rag_multimodal_agent
+from app.agents.chatbot import agent_executor as chatbot_agent
+from app.agents.multimodal_agent import agent_executor as multimodal_agent
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO)
@@ -134,18 +132,16 @@ def create_agent_router(agent_executor, prefix: str, tags: list = None) -> APIRo
 app = FastAPI(
     title="LLMOps Class Agent Server", 
     version="1.0",
-    description="Unified Server for Multiple RAG Agents"
+    description="Unified Server for Multiple Agents"
 )
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "agents": ["basic", "rag-basic", "rag-self-query", "multimodal"]}
+    return {"status": "ok", "agents": ["chatbot_agent", "multimodal_agent"]}
 
 # --- Register Routers ---
-app.include_router(create_agent_router(basic_agent, "/basic", ["Basic Chat"]))
-app.include_router(create_agent_router(rag_basic_agent, "/rag-basic", ["RAG Basic"]))
-app.include_router(create_agent_router(rag_self_query_agent, "/rag-self-query", ["Step 2: Self-Query"]))
-app.include_router(create_agent_router(rag_multimodal_agent, "/multimodal", ["Step 3: Multimodal"]))
+app.include_router(create_agent_router(chatbot_agent, "/chatbot", ["Chatbot"]))
+app.include_router(create_agent_router(multimodal_agent, "/multimodal_agent", ["Multimodal"])) #뒤의 리스트 부분은 API 문서에서 사용하는 태그명
 
 
 if __name__ == "__main__":

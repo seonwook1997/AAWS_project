@@ -1,6 +1,7 @@
 import requests
 import json
 import sys
+import os
 
 class AgentClient:
     def __init__(self, base_url: str = "http://localhost:8000"):
@@ -59,15 +60,23 @@ class AgentClient:
 if __name__ == "__main__":
     client = AgentClient()
     
+    # agents 폴더에서 사용 가능한 모듈을 동적으로 로드
+    agents_dir = os.path.join(os.path.dirname(__file__), "agents")
+    available_agents = []
+    if os.path.exists(agents_dir):
+        for f in os.listdir(agents_dir):
+            if f.endswith(".py") and f != "__init__.py":
+                available_agents.append(f[:-3])  # .py 제거
+
     print("="*50)
     print("🤖 Agent Client Console")
-    print("Available Agents: basic, rag-basic, rag-self-query, multimodal")
+    print(f"Available Agents: {', '.join(available_agents) if available_agents else 'None'}")
     print("Commands:")
     print("  /switch {agent_name} : Switch agent")
     print("  quit / exit          : Exit console")
     print("="*50)
     
-    current_agent = "basic"
+    current_agent = available_agents[0] if available_agents else "chatbot"
     thread_id = "cli_test_thread"
     
     while True:

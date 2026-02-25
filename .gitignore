@@ -132,3 +132,13 @@ Thumbs.db
 # Environment variables
 *.env
 !.env_template
+
+# ==========================================
+# AAWS Project
+# ==========================================
+
+# Coder 에이전트가 생성한 코드 및 수집 결과 (자동 생성 파일)
+code_artifacts/
+
+# crawl4ai 캐시
+.crawl4ai/

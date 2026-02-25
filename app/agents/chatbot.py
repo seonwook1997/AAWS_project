@@ -2,6 +2,7 @@ from datetime import date
 from langgraph.checkpoint.memory import MemorySaver
 from langchain.chat_models import init_chat_model
 from langchain.agents import create_agent
+from app.tools import tools_basic
 
 # 오늘 날짜
 today_date = date.today().strftime("%Y-%m-%d")
@@ -24,7 +25,7 @@ def get_agent_executor():
     # Create Basic Agent (도구가 없는 순수 LLM 챗봇)
     basic_agent = create_agent(
         model=llm, # No tools bound
-        tools=[], 
+        tools=tools_basic, 
         system_prompt=system_prompt,
         checkpointer=memory
     )

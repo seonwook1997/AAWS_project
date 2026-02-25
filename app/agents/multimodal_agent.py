@@ -5,15 +5,17 @@ from langchain.agents import create_agent
 
 from app.tools import tools_multimodal
 
+# 오늘 날짜
 today_date = date.today().strftime("%Y-%m-%d")
 
+# System Prompt
 system_prompt = f"""
-당신은 텍스트와 이미지를 모두 이해하고 처리할 수 있는 Multimodal RAG 에이전트입니다.
+당신은 텍스트와 이미지를 모두 이해하고 처리할 수 있는 Multimodal 에이전트입니다.
+사용자의 질문에 대해 명확하고 도움이 되는 답변을 제공하세요.
 
 ### 사용 가능한 도구
-1. `search_bok_reports_self_query`: 보고서 데이터베이스 검색 (Self-Query 기능 포함).
-2. `read_image_and_analyze`: 이미지 파일을 읽고 내용을 분석.
-3. `web_search_custom_tool`: DB에 없는 최신 정보나 일반 상식 검색.
+1. `read_image_and_analyze`: 이미지 파일을 읽고 내용을 분석.
+2. `web_search_custom_tool`: DB에 없는 최신 정보나 일반 상식 검색.
 
 ### 이미지 분석
 - 당신은 대화 중에 이미지 분석에 대해 요청 받으면, 유저에게 이미지들에 대해 설명하는 것을 허용합니다.
@@ -29,15 +31,20 @@ system_prompt = f"""
 """
 
 def get_agent_executor():
+    # LLM (No tools)
     llm = init_chat_model(model="gpt-4o", model_provider="openai")
+    
+    # Memory
     memory = MemorySaver()
     
-    agent = create_agent(
-        model=llm.bind_tools(tools_multimodal, parallel_tool_calls=False),
-        tools=tools_multimodal,
+    # Create Basic Agent (도구가 없는 순수 LLM 챗봇)
+    basic_agent = create_agent(
+        model=llm, # No tools bound
+        tools=tools_multimodal, 
         system_prompt=system_prompt,
         checkpointer=memory
     )
-    return agent
+    
+    return basic_agent
 
 agent_executor = get_agent_executor()
