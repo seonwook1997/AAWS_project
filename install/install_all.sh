@@ -21,6 +21,9 @@ bash install_hangul.sh
 if [ -f "requirements.txt" ]; then
     echo "🐍 Python 패키지 설치 중..."
     pip install -r requirements.txt
+    
+    echo "🌐 Playwright Chromium 브라우저 설치 중..."
+    playwright install chromium
 else
     echo "⚠️ requirements.txt 파일을 찾을 수 없어 Python 패키지 설치를 건너뜁니다."
 fi

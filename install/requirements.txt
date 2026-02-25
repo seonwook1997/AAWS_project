@@ -37,4 +37,7 @@ uvicorn
 pydantic
 httpx
 sse-starlette
-browser-use
+browser-use[video]
+imageio[ffmpeg]
+agentql
+playwright
