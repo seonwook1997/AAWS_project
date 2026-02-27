@@ -55,21 +55,10 @@ if "messages" not in st.session_state:
 with st.sidebar:
     st.title("🤖 LLMOps Chat")
     
-    # 교육 중 업데이트 됨: agents 폴더에서 사용 가능한 모듈을 동적으로 로드
-    agents_dir = os.path.join(os.path.dirname(__file__), "agents")
-    available_agents = []
-    if os.path.exists(agents_dir):
-        for f in os.listdir(agents_dir):
-            if f.endswith(".py") and f != "__init__.py":
-                available_agents.append(f[:-3])  # .py 제거
-
-    if not available_agents:
-        available_agents = ["chatbot", "multimodal_agent"]  # Fallback
-
     # Agent Selector
     agent_name = st.radio(
         "Select Agent",
-        available_agents,
+        ["basic", "rag-basic", "rag-self-query", "multimodal", "navigator"],
         index=0
     )
     
@@ -86,7 +75,6 @@ st.subheader(f"Chat with `{agent_name}`")
 # 1. Display Chat History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        # 저장된 메시지는 렌더링 함수를 통해 처리
         render_message_content(msg["content"])
 
 # 2. Chat Input
@@ -101,28 +89,45 @@ if prompt := st.chat_input("메시지를 입력하세요..."):
         message_placeholder = st.empty()
         full_response = ""
         
-        # Streamlit은 스트리밍 중에 이미지를 중간중간 띄우기 까다로우므로
-        # 텍스트가 완성된 후에 파싱해서 렌더링하는 방식이 안전합니다.
-        # 혹은 청크 단위로 텍스트만 먼저 보여주다가 완료되면 리렌더링합니다.
+        # 👇 디버깅: 서버에서 데이터가 오긴 하는지 확인
+        st.toast("서버에 요청을 보냈습니다...", icon="⏳") 
         
-        # A. 텍스트 스트리밍 수신 (Token 단위)
-        for chunk in client.stream(agent_name, prompt, st.session_state.thread_id):
-            if "type" in chunk:
-                if chunk["type"] == "token":
-                    content = chunk.get("content", "")
-                    full_response += content
-                    # 스트리밍 중에는 텍스트만 보여줌 (Raw 태그 포함)
+        try:
+            # A. 텍스트 스트리밍 수신
+            for chunk in client.stream(agent_name, prompt, st.session_state.thread_id):
+                
+                # 🚨 핵심 디버깅: 터미널 창(VS Code/명령프롬프트)에 실제 청크 데이터 출력
+                print("들어온 청크 데이터:", chunk) 
+                
+                # chunk가 딕셔너리인지, 문자열인지에 따라 다르게 처리해야 할 수 있습니다.
+                if isinstance(chunk, dict):
+                    # 현재 코드의 로직 (chunk["type"] == "token" 등을 기대함)
+                    if "type" in chunk:
+                        if chunk["type"] == "token":
+                            content = chunk.get("content", "")
+                            full_response += content
+                            message_placeholder.markdown(full_response + "▌")
+                        elif chunk["type"] == "tool_start":
+                            with st.status(f"🛠️ 도구 사용 중: {chunk.get('name', '알 수 없음')}", expanded=False) as status:
+                                st.write(f"Input: {chunk.get('input')}")
+                                status.update(state="complete")
+                        elif chunk["type"] == "error":
+                            st.error(f"Error: {chunk.get('content')}")
+                elif isinstance(chunk, str):
+                    # 만약 서버가 딕셔너리가 아니라 단순 텍스트만 뱉어낸다면?
+                    full_response += chunk
                     message_placeholder.markdown(full_response + "▌")
-                elif chunk["type"] == "tool_start":
-                    with st.status(f"🛠️ 도구 사용 중: {chunk['name']}", expanded=False) as status:
-                        st.write(f"Input: {chunk.get('input')}")
-                        status.update(state="complete")
-                elif chunk["type"] == "error":
-                    st.error(f"Error: {chunk.get('content')}")
+
+        except Exception as e:
+            st.error(f"통신 중 오류 발생: {str(e)}")
         
-        # B. 완료 후 최종 렌더링 (이미지 태그 처리)
-        message_placeholder.empty() # 기존 스트리밍 텍스트 지움 (Clean up)
-        render_message_content(full_response) # 파싱 및 이미지 렌더링 (Parsing & Rendering)
+        # B. 완료 후 최종 렌더링
+        message_placeholder.empty() # 스트리밍 효과(▌) 지우기
         
-        # Add Assistant Message to History
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        # 방어 코드: 텍스트가 비어있는지 확인
+        if full_response.strip():
+            render_message_content(full_response) 
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+        else:
+            # 화면에 아무것도 안 나오는 원인을 파악하기 위한 경고창
+            st.warning("⚠️ 백엔드에서 응답을 받았지만 텍스트가 비어있습니다. 터미널의 '들어온 청크 데이터' 로그를 확인하여 JSON 키값을 맞게 수정하세요.")

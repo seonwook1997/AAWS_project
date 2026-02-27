@@ -41,6 +41,7 @@ from pydantic import BaseModel, Field
 # 주의: 환경 변수(API Key)가 로드된 후에 에이전트 모듈을 임포트해야 합니다.
 from app.agents.chatbot import agent_executor as chatbot_agent
 from app.agents.multimodal_agent import agent_executor as multimodal_agent
+from app.agents.navigator_agent import agent_executor as navigator_agent
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO)
@@ -137,12 +138,12 @@ app = FastAPI(
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "agents": ["chatbot_agent", "multimodal_agent"]}
+    return {"status": "ok", "agents": ["basic", "multimodal", "navigator"]}
 
 # --- Register Routers ---
-app.include_router(create_agent_router(chatbot_agent, "/chatbot", ["Chatbot"]))
-app.include_router(create_agent_router(multimodal_agent, "/multimodal_agent", ["Multimodal"])) #뒤의 리스트 부분은 API 문서에서 사용하는 태그명
-
+app.include_router(create_agent_router(chatbot_agent, "/basic", ["Chatbot"]))
+app.include_router(create_agent_router(multimodal_agent, "/multimodal", ["Multimodal"])) #뒤의 리스트 부분은 API 문서에서 사용하는 태그명
+app.include_router(create_agent_router(navigator_agent, "/navigator", ["Web Navigator"])) # (API 문서 태그명은 Web Navigator로 지정)
 
 if __name__ == "__main__":
     import uvicorn
