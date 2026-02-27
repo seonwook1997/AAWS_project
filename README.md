@@ -91,7 +91,11 @@ Supervisor가 Navigator와 Coder를 **팀원으로 지휘**하는 구조로 전�
 🧠 Supervisor
     ├── 🗺️ Navigator     ← crawl4ai + browser-use로 HTML 분석, Blueprint 설계
     └── 💻 Coder         ← Blueprint 해석, Playwright 코드 작성 및 실행
-```
+> 수집된 결과 JSON/파일은 `code_artifacts` 폴더 아래에 저장되어 나중에 확인할 수 있습니다.```
+
+> 참조: 실제 구현은 `app/agents/supervisor_agent.py`에 들어 있으며,
+> 노트북 `05_Supervised_MultiAgentTeam.ipynb`에서 "시나리오 1" 예제가 보여줍니다.
+
 
 ### 핵심 도구 스택
 

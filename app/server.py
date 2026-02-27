@@ -42,6 +42,8 @@ from pydantic import BaseModel, Field
 from app.agents.chatbot import agent_executor as chatbot_agent
 from app.agents.multimodal_agent import agent_executor as multimodal_agent
 from app.agents.navigator_agent import agent_executor as navigator_agent
+from app.agents.coder_agent import agent_executor as coder_agent
+from app.agents.supervisor_agent import agent_executor as supervisor_agent
 
 # Logging Setup
 logging.basicConfig(level=logging.INFO)
@@ -138,12 +140,14 @@ app = FastAPI(
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "agents": ["basic", "multimodal", "navigator"]}
+    return {"status": "ok", "agents": ["basic", "multimodal", "navigator", "coder", "supervisor"]}
 
 # --- Register Routers ---
 app.include_router(create_agent_router(chatbot_agent, "/basic", ["Chatbot"]))
 app.include_router(create_agent_router(multimodal_agent, "/multimodal", ["Multimodal"])) #뒤의 리스트 부분은 API 문서에서 사용하는 태그명
 app.include_router(create_agent_router(navigator_agent, "/navigator", ["Web Navigator"])) # (API 문서 태그명은 Web Navigator로 지정)
+app.include_router(create_agent_router(coder_agent, "/coder", ["Python Coder"])) 
+app.include_router(create_agent_router(supervisor_agent, "/supervisor", ["Supervisor"])) 
 
 if __name__ == "__main__":
     import uvicorn
