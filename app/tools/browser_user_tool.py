@@ -1,6 +1,7 @@
 import os
 from langchain_core.tools import tool
-from browser_use import Agent, Browser, ChatOpenAI
+from browser_use import Agent, Browser
+from app.utils.model_utils import create_chat_model
 
 # browser-use의 통계 수집(Telemetry)을 비활성화하여 버그 차단
 os.environ["ANONYMIZED_TELEMETRY"] = "false"
@@ -39,7 +40,9 @@ async def browse_web(
         task += "\n\n[필수 지침] 작업을 완료한 후, 텍스트 요약이 아닌 '반드시' 최종적으로 찾은 웹페이지의 정확한 URL(또는 요청받은 링크들)만 결과(final_result)로 반환하세요."
 
     # 2. LLM 초기화
-    bu_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+    # create_chat_model will choose gpt-4o-mini by default or fall back to
+    # gemini-flash-latest; it respects the LLM_MODEL env var if set.
+    bu_llm = create_chat_model(temperature=0.0)
     
     # 3. 에이전트 설정 (세션 유지 옵션에 따라 브라우저 주입 여부 결정)
     agent_kwargs = {

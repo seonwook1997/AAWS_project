@@ -1,6 +1,7 @@
 from datetime import date
 from dataclasses import dataclass
 from langchain.chat_models import init_chat_model
+from app.utils.model_utils import create_chat_model
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.agents.middleware import FilesystemFileSearchMiddleware
@@ -35,7 +36,7 @@ def get_agent_executor():
     class CoderContext:
         pass
 
-    coder_model = init_chat_model(model="gpt-4o-mini", model_provider="openai", temperature=0.2)
+    coder_model = create_chat_model(temperature=0.2)
     checkpointer = InMemorySaver()
 
     coder_agent = create_agent(
@@ -45,7 +46,7 @@ def get_agent_executor():
         tools=tools_coder,
         middleware=[
             FilesystemFileSearchMiddleware(
-                root_path='/workspaces/codespaces-jupyter/AAWS_project/code_artifacts', # ✅ 검색 범위를 code_artifacts로 강제
+                root_path='/workspaces/AAWS_project/code_artifacts',
                 use_ripgrep=True, 
                 max_file_size_mb=10,
             )

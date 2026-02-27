@@ -7,7 +7,8 @@ from langchain.tools import tool
 # ==========================================
 
 # 작업 및 실행 파일들이 모일 대상 디렉토리 (없으면 자동 생성)
-ARTIFACT_DIR = os.path.join(os.getenv("PROJECT_ROOT", os.getcwd()), "code_artifacts")
+# 명시적으로 /workspaces/AAWS_project/code_artifacts 경로 설정
+ARTIFACT_DIR = "/workspaces/AAWS_project/code_artifacts"
 os.makedirs(ARTIFACT_DIR, exist_ok=True)
 
 @tool(parse_docstring=True)

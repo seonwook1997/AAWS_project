@@ -107,6 +107,10 @@ Supervisor가 Navigator와 Coder를 **팀원으로 지휘**하는 구조로 전�
 | 코드 실행 | Python `subprocess` (Playwright sync) |
 | 상태 관리 | LangGraph `InMemorySaver`, `StateGraph` |
 
+
+### 추가 에이전트
+- `Data Analyst` : 수집된 JSON/CSV를 판다스/매트플롯립으로 분석·차트 생성 (diagram 참조에도 추가)
+
 ---
 
 ## 🚀 시작하기 (환경 세팅)
@@ -124,6 +128,18 @@ bash install_all.sh
 ### 환경 변수 설정
 
 프로젝트 루트에 `.env` 파일을 생성하고 아래 키를 설정하세요.
+**모델 선택 환경 변수**
+
+기본적으로 에이전트는 OpenAI의 `gpt-4o-mini` 모델을 사용합니다. 다른 모델을 사용하려면
+`.env` 또는 셸에서 `LLM_MODEL` 을 설정하세요:
+
+```env
+LLM_MODEL="google_genai:gemini-flash-latest"  # 또는 gpt-4o-mini 등의 OpenAI 모델 이름
+```
+
+`LLM_MODEL` 에 프리픽스(`provider:model`)가 포함되어 있으면 해당 제공자로 요청합니다.
+값을 지정하지 않으면 시스템은 `gpt-4o-mini`를 시도하고 실패 시 자동으로 Gemini Flash로
+대체합니다.
 
 ```env
 OPENAI_API_KEY="your-api-key"

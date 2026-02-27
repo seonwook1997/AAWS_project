@@ -4,6 +4,7 @@ import json
 import mimetypes
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+from app.utils.model_utils import create_chat_model
 from langchain_core.messages import HumanMessage
 
 @tool
@@ -27,7 +28,8 @@ def read_image_and_analyze(image_path: str, query_hint: str = "이 이미지의 
         with open(image_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
 
-        vision_llm = ChatOpenAI(model="gpt-4o", temperature=0)
+        # choose a model for vision tasks; this will use the LLM_MODEL override if set
+        vision_llm = create_chat_model(temperature=0)
 
         messages = [
             HumanMessage(

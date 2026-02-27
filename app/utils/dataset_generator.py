@@ -16,6 +16,7 @@ except ImportError:
     convert_from_path = None
 
 from langchain_openai import ChatOpenAI
+from app.utils.model_utils import create_chat_model
 from langchain_core.messages import HumanMessage
 
 def encode_image(image):
@@ -55,7 +56,7 @@ def generate_golden_dataset(
 
     generated_examples = []
     # 강력한 성능을 위해 gpt-4o 사용
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.7)
+    llm = create_chat_model(temperature=0.7)
 
     # num_samples를 채울 때까지 반복 (한 번에 3개씩(Simple, Reasoning, Visual) 생성되므로 Loop 횟수 조정)
     # 넉넉하게 Loop를 돌고 나중에 자릅니다.

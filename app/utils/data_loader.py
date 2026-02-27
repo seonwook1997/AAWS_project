@@ -5,6 +5,7 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from app.utils.model_utils import create_chat_model
 from langchain_classic.retrievers.self_query.base import SelfQueryRetriever
 from langchain_classic.chains.query_constructor.schema import AttributeInfo
 
@@ -76,7 +77,7 @@ def _create_self_query_retriever(collection_name: str):
     document_content_description = "Bank of Korea Industry Reports"
     
     # Self-Query를 위한 LLM (구조화된 쿼리 생성용)
-    llm = ChatOpenAI(model="gpt-4o", temperature=0).with_config({"tags": ["exclude_from_stream"]})
+    llm = create_chat_model(temperature=0).with_config({"tags": ["exclude_from_stream"]})
     
     retriever = SelfQueryRetriever.from_llm(
         llm,
